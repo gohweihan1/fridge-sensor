@@ -69,21 +69,11 @@ export default function Home() {
     <div className="min-h-screen flex flex-row items-center justify-center p-4" style={{ backgroundColor: "#ecfdf5" }}>
       <div className="flex-1 max-w-md">
         <h1 className="text-4xl font-bold">
-          GEN AI powered Fridge App
+          GEN AI Powered Fridge App
         </h1>
         <p className="mt-4 text-lg text-gray-600">
-          Click on the fridge to stes it out!
+          Click on the fridge to test its capabilities!
         </p>
-        
-        {/* Add a manual redirect button for testing */}
-        {isVideoPlaying && (
-          <button 
-            onClick={goToFridgePage}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Go to fridge page
-          </button>
-        )}
       </div>
       
       <div
@@ -104,9 +94,6 @@ export default function Home() {
               style={{ objectFit: "cover" }}
               priority
             />
-            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 text-center">
-              Click to open the fridge
-            </div>
           </motion.div>
         ) : (
           <div className="w-full h-full">
