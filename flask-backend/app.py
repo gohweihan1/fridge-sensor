@@ -4,7 +4,7 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 
 cred = credentials.Certificate("key/fridge-app-d9238-firebase-adminsdk-fbsvc-61910d67bd.json")  # Your Firebase service account JSON
 firebase_admin.initialize_app(cred)
@@ -78,6 +78,36 @@ def remove_item():
     else:
         doc_ref.delete()  # Delete item if count reaches 0
         return jsonify({"message": f"{item_name} removed from inventory."})
+
+
+@app.route("/classify", methods=["POST"])
+def classify():
+    data = request.get_json()
+
+    if not data or "image" not in data:
+        return jsonify({"error": "No image received"}), 400
+
+    base64_image = data["image"]
+    add_or_remove = data["action"]
+
+    print(base64_image)
+    print(add_or_remove)
+
+    try:
+        # Remove the header "data:image/jpeg;base64," if present
+        if "," in base64_image:
+            base64_image = base64_image.split(",")[1]
+
+        print("base64_image")
+
+        # Try decoding the base64 string
+        image_data = base64.b64decode(base64_image)
+
+        return jsonify({"message": "Image received successfully!"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Invalid base64 image: {str(e)}"}), 400
+
 
 # 🔥 Run Flask app
 if __name__ == '__main__':

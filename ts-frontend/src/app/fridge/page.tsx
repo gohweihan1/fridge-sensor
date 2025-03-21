@@ -29,6 +29,32 @@ export default function Fridge() {
     return null;
   };  
 
+  const sendToLLM = async (imageBase64: string, action: string) => {
+    const payload = {
+      image: imageBase64,
+      action: action, // use the variable, not `String`
+    };
+  
+    console.log("📤 Sending JSON to /classify:", payload); // ✅ Log the request body
+  
+    try {
+      const res = await fetch("http://127.0.0.1:8000/classify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const data = await res.json();
+      console.log(`${action.toUpperCase()} -> Detected item:`, data.item);
+    } catch (err) {
+      console.error("❌ Error sending to LLM:", err);
+    }
+  };
+  
+  
+
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -66,13 +92,13 @@ export default function Fridge() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl w-full">
         {/* Left Column - Text & Future Features */}
         <div className="flex flex-col justify-center space-y-6 p-6">
-          <h1 className="text-3xl font-bold text-gray-800">Welcome inside the fridge</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Welcome inside the fridge 🍽️</h1>
           <p className="text-lg text-gray-600">
             This page mimics a fridge sensor, where inventory items are scanned and either added or removed from the fridge's inventory.
           </p>
 
           {/* Inventory Scrollable Card */}
-          <div className="w-full max-w-md bg-white shadow-md rounded-xl p-4 border border-gray-200">
+          <div className="w-full max-w-md bg-white shadow-md rounded-xl p-4 border border-gray-200 mb-10">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-xl font-semibold text-gray-800">
               Fridge Inventory
@@ -103,10 +129,26 @@ export default function Fridge() {
           </div>
 
           <Stack direction="row" spacing={2}>
-            <Button variant="contained" startIcon={<AddIcon />} color="success" sx={{ minWidth: 120 }}>
+            <Button 
+              variant="contained" 
+              startIcon={<AddIcon />} 
+              color="success" 
+              sx={{ minWidth: 120 }}
+              onClick={() => {
+                const image = captureFrame();
+                if (image) sendToLLM(image, "add");
+              }}>
               Add
             </Button>
-            <Button variant="contained" endIcon={<DeleteIcon />} color="error" sx={{ minWidth: 120 }}>
+            <Button 
+              variant="contained" 
+              endIcon={<DeleteIcon />} 
+              color="error" 
+              sx={{ minWidth: 120 }}
+              onClick={() => {
+                const image = captureFrame();
+                if (image) sendToLLM(image, "remove");
+              }}>
               Delete
             </Button>
           </Stack>
