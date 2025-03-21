@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, firestore
+import re
+import base64
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
@@ -90,24 +92,42 @@ def classify():
     base64_image = data["image"]
     add_or_remove = data["action"]
 
-    print(base64_image)
-    print(add_or_remove)
-
     try:
         # Remove the header "data:image/jpeg;base64," if present
         if "," in base64_image:
             base64_image = base64_image.split(",")[1]
 
-        print("base64_image")
+        # Remove any characters not part of base64
+        base64_image = re.sub(r'[^A-Za-z0-9+/=]', '', base64_image)
+
+        # Ensure proper padding
+        missing_padding = len(base64_image) % 4
+        if missing_padding:
+            base64_image += '=' * (4 - missing_padding)
+
+        print(f"Base 64 Image: {base64_image}")
 
         # Try decoding the base64 string
         image_data = base64.b64decode(base64_image)
 
-        return jsonify({"message": "Image received successfully!"}), 200
+        # # ✅ Save it to disk for verification
+        # with open("received_image.jpg", "wb") as f:
+        #     f.write(image_data)
+        
+        object_name = classify_image(image_data)
+
+        return jsonify({
+            "message": "Image received and classified!",
+            "item": object_name
+        }), 200
 
     except Exception as e:
+        print(f"ERROR: {e}")
         return jsonify({"error": f"Invalid base64 image: {str(e)}"}), 400
 
+
+def classify_image(image_data):
+    pass
 
 # 🔥 Run Flask app
 if __name__ == '__main__':
