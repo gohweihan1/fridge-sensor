@@ -1,26 +1,60 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { RefreshCcw } from "lucide-react";
 
 export default function Fridge() {
   const videoRef = useRef(null);
-  const [isInput, setIsInput] = useState(true);
+  const [inventory, setInventory] = useState([]);
+
+  //Captures frame as an image
+  const captureFrame = () => {
+    if (videoRef.current) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+  
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+  
+      ctx?.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+  
+      const image = canvas.toDataURL("image/jpeg");
+      console.log("Frame captured!");
+      return image;
+    }
+    return null;
+  };  
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" }, // "user" uses the front camera
+      });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (error) {
+      console.error("Error accessing camera:", error);
+    }
+  };
+
+  const fetchInventory = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/inventory");
+      if (!res.ok) {
+        throw new Error("Failed to fetch inventory");
+      }
+      const data = await res.json();
+      setInventory(data);
+    } catch (error) {
+      console.error("Error fetching inventory:", error);
+    }
+  };
 
   useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" }, // "user" uses the front camera
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error("Error accessing camera:", error);
-      }
-    };
+    startCamera()
+    fetchInventory()
 
-    startCamera();
   }, []);
 
   return (
@@ -32,14 +66,38 @@ export default function Fridge() {
           <p className="text-lg text-gray-600">
             This page mimics a fridge sensor, where inventory items are scanned and either added or removed from the fridge's inventory.
           </p>
-          <ul className="list-disc list-inside text-gray-700">
-            <li>🔍 Llama vision model used to identify inventory objects in frame</li>
-            <li>📋 View real-time inventory.</li>
-            <li>🔔 Get expiration reminders.</li>
-          </ul>
-          <p className="text-md text-gray-500">
-            Stay tuned for more features!
-          </p>
+
+          {/* Inventory Scrollable Card */}
+          <div className="w-full max-w-md bg-white shadow-md rounded-xl p-4 border border-gray-200">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Fridge Inventory
+            </h2>
+            <button 
+              onClick={fetchInventory} 
+              className="p-2 rounded-full text-gray-600 hover:bg-gray-200 transition"
+              aria-label="Refresh Inventory"
+            >
+              <RefreshCcw className="w-5 h-5" /> {/* Refresh icon */}
+            </button>
+          </div>
+
+            {/* Scrollable Inner Card */}
+            <div className="h-64 overflow-y-scroll rounded-lg border border-gray-100 p-4">
+              <ul className="space-y-2">
+                {inventory.map((item, index) => (
+                  <li 
+                    key={index} 
+                    className="grid grid-cols-2 gap-4 text-gray-700"
+                  >
+                    <span className="text-lg text-left">{item.name}</span>
+                    <span className="text-lg font-medium text-right">{item.count}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
         </div>
 
         {/* Right Column - Camera Feed */}

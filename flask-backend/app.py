@@ -17,8 +17,6 @@ def health_check():
 
 @app.route('/inventory', methods=['GET'])
 def get_inventory():
-    print("GET /inventory")
-    
     items = inventory_ref.stream()
     
     # Create a list of dictionaries from the Firestore documents
@@ -34,22 +32,33 @@ def get_inventory():
 @app.route('/inventory', methods=['POST'])
 def add_item():
     data = request.json
-    item_name = data.get("name")
 
-    if not item_name:
-        return jsonify({"error": "Item name is required"}), 400
+    if not data or not isinstance(data, list):
+        return jsonify({"error": "Expected a JSON list of objects with 'name' keys"}), 400
 
-    doc_ref = inventory_ref.document(item_name)  # Use item name as Document ID
-    doc = doc_ref.get()
+    result = {}
 
-    if doc.exists:
-        new_count = doc.to_dict().get("count", 0) + 1
-        doc_ref.update({"count": new_count})  # Increment count
-    else:
-        new_count = 1
-        doc_ref.set({"count": 1})  # Create new item
+    for item in data:
+        item_name = item.get("name").lower().capitalize()
 
-    return jsonify({"name": item_name, "count": new_count})
+        if not item_name:
+            return jsonify({"error": "Item name is required"}), 400
+
+        doc_ref = inventory_ref.document(item_name)
+        doc = doc_ref.get()
+
+        if doc.exists:
+            new_count = doc.to_dict().get("count", 0) + 1
+            doc_ref.update({"count": new_count})
+        else:
+            new_count = 1
+            doc_ref.set({"count": 1})
+
+        result[item_name] = new_count
+
+    return jsonify(result), 200
+
+
 
 @app.route('/inventory', methods=['DELETE'])
 def remove_item():
