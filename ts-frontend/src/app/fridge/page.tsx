@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { RefreshCcw } from "lucide-react";
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Fridge() {
   const videoRef = useRef(null);
@@ -97,6 +101,15 @@ export default function Fridge() {
               </ul>
             </div>
           </div>
+
+          <Stack direction="row" spacing={2}>
+            <Button variant="contained" startIcon={<AddIcon />} color="success" sx={{ minWidth: 120 }}>
+              Add
+            </Button>
+            <Button variant="contained" endIcon={<DeleteIcon />} color="error" sx={{ minWidth: 120 }}>
+              Delete
+            </Button>
+          </Stack>
 
         </div>
 
