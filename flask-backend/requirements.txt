@@ -6,3 +6,5 @@ firebase-admin
 python-dotenv
 pillow
 numpy
+replicate
+python-dotenv

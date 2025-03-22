@@ -2,8 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, firestore
+from dotenv import load_dotenv
 import re
 import base64
+import replicate
+
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
@@ -105,7 +109,7 @@ def classify():
         if missing_padding:
             base64_image += '=' * (4 - missing_padding)
 
-        print(f"Base 64 Image: {base64_image}")
+        #print(f"Base 64 Image: {base64_image}")
 
         # Try decoding the base64 string
         image_data = base64.b64decode(base64_image)
@@ -116,6 +120,8 @@ def classify():
         
         object_name = classify_image(image_data)
 
+        print(object_name)
+
         return jsonify({
             "message": "Image received and classified!",
             "item": object_name
@@ -125,9 +131,35 @@ def classify():
         print(f"ERROR: {e}")
         return jsonify({"error": f"Invalid base64 image: {str(e)}"}), 400
 
-
 def classify_image(image_data):
-    pass
+    """
+    Accepts raw image data (bytes), encodes it in base64, and sends it to the LLaMA 3.2 Vision model on Replicate
+    """
+
+    # Convert image bytes to base64 and format as Data URI
+    encoded_data = base64.b64encode(image_data).decode("utf-8")
+    image_uri = f"data:image/jpeg;base64,{encoded_data}"  # Adjust MIME type as needed
+
+    # Define the input payload with a simple prompt
+    input_data = {
+        "image": image_uri,
+        "prompt": "What is the single most prominent object in this image? Give a response in this format: ##<one word answer>##"
+    }
+
+    # Run the model on Replicate
+    output = replicate.run(
+        "lucataco/ollama-llama3.2-vision-11b:d4e81fc1472556464f1ee5cea4de177b2fe95a6eaadb5f63335df1ba654597af",
+        input=input_data
+    )
+
+    # Process and return the response
+    return "".join(output).strip().lower().capitalize().rstrip(".")
+
+def extract_answer(output_text):
+    match = re.search(r"##(.*?)##", output_text)
+    if match:
+        return match.group(1).strip().lower()
+    return "unknown"
 
 # 🔥 Run Flask app
 if __name__ == '__main__':
