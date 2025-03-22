@@ -6,10 +6,22 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 export default function Fridge() {
   const videoRef = useRef(null);
   const [inventory, setInventory] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [detectedItem, setDetectedItem] = useState("");
+  const [isAdd, setIsAdd] = useState(true)
+
+  const handlePopupClose = () => {
+    setOpen(false);
+  };
+
 
   //Captures frame as an image
   const captureFrame = () => {
@@ -48,6 +60,9 @@ export default function Fridge() {
   
       const data = await res.json();
       console.log(`${action.toUpperCase()} -> Detected item:`, data.item);
+
+      setDetectedItem(data.item);
+      setOpen(true);
     } catch (err) {
       console.error("❌ Error sending to LLM:", err);
     }
@@ -137,6 +152,7 @@ export default function Fridge() {
               onClick={() => {
                 const image = captureFrame();
                 if (image) sendToLLM(image, "add");
+                setIsAdd(true)
               }}>
               Add
             </Button>
@@ -148,6 +164,7 @@ export default function Fridge() {
               onClick={() => {
                 const image = captureFrame();
                 if (image) sendToLLM(image, "remove");
+                setIsAdd(false)
               }}>
               Delete
             </Button>
@@ -167,6 +184,25 @@ export default function Fridge() {
           </div>
         </div>
       </div>
+
+      <Dialog
+        open={open}
+        onClose={handlePopupClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Fridge Detected New Object!"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText
+            id="alert-dialog-description"
+            className="text-center space-y-2"
+          >
+            <div>🧊 Detected Item: {detectedItem}</div>
+            <div>{isAdd ? "✅ Added to the fridge" : "🗑️ Removed from the fridge"}</div>
+          </DialogContentText>
+        </DialogContent>
+      </Dialog>
     </div>
+
   );
 }
