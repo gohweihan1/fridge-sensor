@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from 'next/navigation';
 import { RefreshCcw } from "lucide-react";
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
@@ -10,8 +11,10 @@ import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import RestaurantIcon from '@mui/icons-material/Restaurant';
 
 export default function Fridge() {
+  const router = useRouter();
   const videoRef = useRef(null);
   const [inventory, setInventory] = useState([]);
   const [open, setOpen] = useState(false);
@@ -173,7 +176,7 @@ export default function Fridge() {
         </div>
 
         {/* Right Column - Camera Feed */}
-        <div className="flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center space-y-10">
           <div className="relative w-full max-w-2xl aspect-[16/9] bg-black rounded-xl overflow-hidden shadow-2xl">
             <video
               ref={videoRef}
@@ -182,6 +185,14 @@ export default function Fridge() {
               className="w-full h-full object-cover"
             />
           </div>
+          <Button 
+            variant="contained" 
+            startIcon={<RestaurantIcon />}
+            onClick={() => {
+              router.push('/recipe');
+            }}>
+              Create Recipe!
+          </Button>
         </div>
       </div>
 
