@@ -85,3 +85,6 @@ def extract_answer(output_text):
     if match:
         return match.group(1).strip().lower()
     return "unknown"
+
+def generate_recipe(data):
+    return "got it"

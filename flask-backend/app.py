@@ -3,7 +3,7 @@ from flask_cors import CORS
 import firebase_admin
 from firebase_admin import credentials, firestore
 from dotenv import load_dotenv
-from functions import getInventory, addItems, deleteItem, classify_image
+from functions import getInventory, addItems, deleteItem, classify_image, generate_recipe
 import re
 import base64
 import replicate
@@ -104,6 +104,16 @@ def classify():
     except Exception as e:
         print(f"ERROR: {e}")
         return jsonify({"error": f"Invalid base64 image: {str(e)}"}), 400
+
+@app.route("/getrecipe", methods=['POST'])
+def get_recipe():
+    data = request.get_json()
+
+    print(data)
+    
+    s = generate_recipe(data)
+
+    return s
 
 # 🔥 Run Flask app
 if __name__ == '__main__':

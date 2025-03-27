@@ -32,6 +32,37 @@ export default function recipe() {
         ));
     };
 
+     // Function to send the POST request
+    const handleGenerateRecipe = async () => {
+        const payload = {
+        mealType,
+        dietaryNeeds,
+        cuisineType,
+        mainIngredient,
+        dishType,
+        };
+
+        try {
+        const response = await fetch('http://127.0.0.1:8000/getrecipe', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload), // Send state data as JSON
+        });
+
+        if (response.ok) {
+            const result = await response.text(); // or response.json() if the response is JSON
+            console.log('Recipe generated:', result);
+            // Handle the result (display the recipe, etc.)
+        } else {
+            console.error('Error generating recipe');
+        }
+        } catch (error) {
+        console.error('Network error:', error);
+        }
+    };
+
     return (
         <div className="bg-emerald-50 min-h-screen p-8">
             <h1 className="text-4xl font-bold text-center mb-8 text-emerald-800">
@@ -136,9 +167,7 @@ export default function recipe() {
             <Button
             variant="contained"
             startIcon={<RestaurantIcon />}
-            onClick={() => {
-                //logic
-            }}
+            onClick={handleGenerateRecipe}
             size='large'
             className="bg-emerald-600 hover:bg-emerald-700 transition duration-300"
             >
