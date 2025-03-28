@@ -5,6 +5,7 @@ import { Card, CardContent, Button, Typography, FormControl, InputLabel, Select,
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import { useRouter } from 'next/router';
 import { CheckBox } from '@mui/icons-material';
+import RecipeDisplay from './RecipeDisplay'
 
 export default function recipe() {
 
@@ -14,6 +15,9 @@ export default function recipe() {
     const [cuisineType, setCuisineType] = useState('None');
     const [mainIngredient, setMainIngredient] = useState('None');
     const [dishType, setDishType] = useState('None');
+
+    // State to hold the recipe data
+    const [recipeData, setRecipeData] = useState<any>(null);
 
     const meal_type = ["Appetizer", "Breakfast", "Dessert", "Dinner", "Lunch", "Side Dish", "Snack", "None"]
     const dietary_needs = ["Diabetic-friendly", "Gluten-free", "Healthy", "Lactose-free", "Low-calorie", "Low-carb", "Low-fat", "Low-sodium", "Vegan", "Vegetarian"]
@@ -57,7 +61,8 @@ export default function recipe() {
         });
 
         if (response.ok) {
-            const result = await response.text(); // or response.json() if the response is JSON
+            const result = await response.json(); // Parsing JSON response
+            setRecipeData(result);
             console.log('Recipe generated:', result);
             // Handle the result (display the recipe, etc.)
         } else {
@@ -166,9 +171,10 @@ export default function recipe() {
             <Card className="flex flex-col" raised>
             <CardContent>
                 <Typography variant="h4" component="h2" align="center" gutterBottom>
-                Generated Recipe
+                    Generated Recipe
                 </Typography>
-                {/* Recipe content will go here */}
+
+                <RecipeDisplay recipeData={recipeData} />
             </CardContent>
             </Card>
         </div>

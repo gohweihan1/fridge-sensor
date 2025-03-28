@@ -123,7 +123,11 @@ def classify():
 def get_recipe():
     data = request.get_json()
 
+    print(data)
+
     response_dict = generate_recipe(data, inventory_ref, FAISS_PATH, RECIPE_METADATA_PATH)
+
+    print(response_dict)
 
     return jsonify(response_dict)
 

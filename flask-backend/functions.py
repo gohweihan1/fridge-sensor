@@ -108,6 +108,8 @@ def generate_recipe(data, inventory_ref, FAISS_PATH ,RECIPE_METADATA_PATH):
 
     response_dict = get_final_recipe_response(recipe_dict, inventory_dict, preferences_dict)
 
+    print(response_dict)
+
     print("Got response, now to format.")
 
     return break_down_response_dict(response_dict)
