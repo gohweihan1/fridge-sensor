@@ -108,5 +108,36 @@ def generate_recipe(data, inventory_ref, FAISS_PATH ,RECIPE_METADATA_PATH):
 
     response_dict = get_final_recipe_response(recipe_dict, inventory_dict, preferences_dict)
 
-    return response_dict
+    print("Got response, now to format.")
+
+    return break_down_response_dict(response_dict)
+
+def break_down_response_dict(recipe_data):
+    # Extract the raw recipe string
+    recommended_recipe = recipe_data.get('recommended_recipe', '')
+    
+    # Split the recipe string into parts
+    parts = recommended_recipe.split("\n\n")  # Split by double newline, which separates the parts
+    
+    # Extract Recipe Name
+    recipe_name = parts[0].replace("Recipe Name: ", "").strip() if len(parts) > 0 else ""
+    
+    # Extract Ingredients
+    ingredients_section = parts[1].replace("List of Ingredients with quantities:", "").strip() if len(parts) > 1 else ""
+    ingredients = [ingredient.strip().replace("-", "").strip() for ingredient in ingredients_section.split("\n") if ingredient.strip()]
+    
+    # Extract Instructions
+    instructions_section = parts[3].strip() if len(parts) > 3 else ""
+    instructions = [step.strip() for step in instructions_section.split("\n") if step.strip()]
+    
+    # Extract Nutritional Note (if available)
+    nutritional_note = recipe_data.get('nutritional_note', '').strip()
+    
+    # Return the structured data as a dictionary
+    return {
+        "Nutritional_note": nutritional_note,
+        "Recipe_name": recipe_name,
+        "Ingredients": ingredients,
+        "Step by step instructions": instructions
+    }
 
