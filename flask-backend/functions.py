@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 import base64
 import replicate
+from recipe_generation import *
+from typing import Dict, List, Any
 
 def getInventory(inventory_ref):
     items = inventory_ref.stream()
@@ -12,8 +14,7 @@ def getInventory(inventory_ref):
         item_data["name"] = item.id
         inventory_list.append(item_data)
 
-    # Return the list as a JSON response
-    return jsonify(inventory_list)
+    return inventory_list
 
 
 def addItems(inventory_ref, data):
@@ -86,5 +87,26 @@ def extract_answer(output_text):
         return match.group(1).strip().lower()
     return "unknown"
 
-def generate_recipe(data):
-    return "got it"
+def convert_inventory_list_to_dict(inventory_list: List[Dict[str, Any]]) -> Dict[str, str]:
+    inventory_dict = {}
+
+    for item_data in inventory_list:
+        item_name = item_data.get("name")
+        item_count = item_data.get("count")
+
+        inventory_dict[item_name] = str(item_count)
+
+    return inventory_dict
+
+def generate_recipe(data, inventory_ref, FAISS_PATH ,RECIPE_METADATA_PATH):
+    preferences_dict = data
+    inventory_dict = convert_inventory_list_to_dict(getInventory(inventory_ref))
+
+    recipe_dict = get_recipe_recommendations(inventory_dict, preferences_dict, FAISS_PATH, RECIPE_METADATA_PATH)
+
+    print("Retrieved recipe recommendations!")
+
+    response_dict = get_final_recipe_response(recipe_dict, inventory_dict, preferences_dict)
+
+    return response_dict
+

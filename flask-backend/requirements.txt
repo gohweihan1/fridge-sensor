@@ -8,3 +8,7 @@ pillow
 numpy
 replicate
 python-dotenv
+sentence_transformers
+pandas
+faiss-cpu
+torch

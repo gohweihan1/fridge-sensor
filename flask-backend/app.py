@@ -7,8 +7,17 @@ from functions import getInventory, addItems, deleteItem, classify_image, genera
 import re
 import base64
 import replicate
+import os
+from sentence_transformers import SentenceTransformer
+from huggingface_hub import login
 
 load_dotenv()
+
+# --- Configuration ---
+# Use environment variables or a config file for paths/keys in production
+FAISS_PATH = os.getenv("FAISS_PATH")
+RECIPE_METADATA_PATH = os.getenv("RECIPE_METADATA_PATH")
+HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_HUB_TOKEN") # MUST be set for Mistral LLM
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
@@ -18,6 +27,9 @@ firebase_admin.initialize_app(cred)
 db = firestore.client()
 inventory_ref = db.collection("fridgeInventory")  # Firestore collection
 
+# Use your Hugging Face access token to login
+login(token=HUGGINGFACE_API_TOKEN)
+
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"message": "Server is up and running!"})
@@ -25,7 +37,9 @@ def health_check():
 @app.route('/inventory', methods=['GET'])
 def get_inventory():
     try:
-        return getInventory(inventory_ref)
+        inventory_list = getInventory(inventory_ref)
+
+        return jsonify(inventory_list)
     except Exception as e:
         print(f"ERROR: {e}")
         print("Error retrieving items from database")
@@ -109,11 +123,9 @@ def classify():
 def get_recipe():
     data = request.get_json()
 
-    print(data)
-    
-    s = generate_recipe(data)
+    response_dict = generate_recipe(data, inventory_ref, FAISS_PATH, RECIPE_METADATA_PATH)
 
-    return s
+    return jsonify(response_dict)
 
 # 🔥 Run Flask app
 if __name__ == '__main__':
