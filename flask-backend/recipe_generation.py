@@ -166,6 +166,8 @@ def get_final_recipe_response(recipe_dict, inventory_dict, preferences_dict):
 
     print("Response received from LLM!")
 
+    print(f"LLM Response: {response}")
+
     # Cleanly format the result
     result = {}
 
