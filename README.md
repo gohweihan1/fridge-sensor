@@ -7,7 +7,7 @@ Behind the scenes, the app captures a camera frame and uses a powerful **LLM** (
 ## 🧠 Overview
 
 * **LLM:** `ollama-llama3.2-vision-11b`
-* **Recipe Generation:** Uses **FAISS** for recipe search and **Hugging Face's LLM** `all-MiniLM-L6-v2` for personalized recipe generation
+* **Recipe Generation:** Uses **FAISS** for recipe search and **Hugging Face's LLM** `all-MiniLM-L6-v2` and `Mistral-7B-Instruct-v0.1` for personalized recipe generation
 * **Frontend:** Built with **Next.js + Tailwind + Material UI**
 * **Backend:** **Flask** server handles LLM requests, Firebase updates, and recipe generation
 * **Database:** **Firebase Firestore** stores inventory data and recipe metadata

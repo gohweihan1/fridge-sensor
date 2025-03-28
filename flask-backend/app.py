@@ -96,7 +96,7 @@ def classify():
         
         object_name = classify_image(image_data)
 
-        print(object_name)
+        print(f"classified object: {object_name}")
 
         #database actions
         if (add_or_remove == "add"):

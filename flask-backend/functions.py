@@ -3,6 +3,7 @@ import base64
 import replicate
 from recipe_generation import *
 from typing import Dict, List, Any
+import re
 
 def getInventory(inventory_ref):
     items = inventory_ref.stream()
@@ -69,7 +70,11 @@ def classify_image(image_data):
     # Define the input payload with a simple prompt
     input_data = {
         "image": image_uri,
-        "prompt": "What is the single most prominent object in this image? Give a response in this format: ##<one word answer>##"
+        "prompt": "You are a fridge sensor designed to detect and identify common fridge items. \
+        Please analyze the image and identify the single most prominent object in the fridge. \
+        The object should be a typical fridge inventory item such as fruits, vegetables, dairy products, or packaged foods. \
+        Please respond in a singular, one-word format (e.g., 'apple', 'carrot', 'cheese'). \
+        Your answer should only be the object name and nothing else. Respond in this format: ##<one word answer>##"
     }
 
     # Run the model on Replicate
@@ -79,13 +84,12 @@ def classify_image(image_data):
     )
 
     # Process and return the response
-    return "".join(output).strip().lower().capitalize().rstrip(".")
-
-def extract_answer(output_text):
-    match = re.search(r"##(.*?)##", output_text)
+    # Use regex to extract the answer, whether it's wrapped in '##' or not
+    match = re.search(r"##(.*?)##", "".join(output))
     if match:
-        return match.group(1).strip().lower()
-    return "unknown"
+        return match.group(1).strip().capitalize()  # Return the content inside '##'
+    else:
+        return "".join(output).strip().capitalize()  # Return the raw output if no '##' is f
 
 def convert_inventory_list_to_dict(inventory_list: List[Dict[str, Any]]) -> Dict[str, str]:
     inventory_dict = {}
