@@ -1,27 +1,32 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardContent, Button, Typography, FormControl, InputLabel, Select, MenuItem, Grid } from '@mui/material';
+import { Card, CardContent, Button, Typography, FormControl, InputLabel, Select, MenuItem, Grid, Checkbox, ListItemText } from '@mui/material';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import { useRouter } from 'next/router';
+import { CheckBox } from '@mui/icons-material';
 
 export default function recipe() {
 
     // State to manage the selected options
     const [mealType, setMealType] = useState('None');
-    const [dietaryNeeds, setDietaryNeeds] = useState('None');
+    const [dietaryNeeds, setDietaryNeeds] = useState<string[]>([]);
     const [cuisineType, setCuisineType] = useState('None');
     const [mainIngredient, setMainIngredient] = useState('None');
     const [dishType, setDishType] = useState('None');
 
     const meal_type = ["Appetizer", "Breakfast", "Dessert", "Dinner", "Lunch", "Side Dish", "Snack", "None"]
-    const dietary_needs = ["Diabetic-friendly", "Gluten-free", "Healthy", "Lactose-free", "Low-calorie", "Low-carb", "Low-fat", "Low-sodium", "Vegan", "Vegetarian", "None"]
+    const dietary_needs = ["Diabetic-friendly", "Gluten-free", "Healthy", "Lactose-free", "Low-calorie", "Low-carb", "Low-fat", "Low-sodium", "Vegan", "Vegetarian"]
     const cuisine_type = ["Chinese", "French", "Greek", "Indian", "Italian", "Mexican", "Southern", "None"]
     const main_ingredient = ["Beef", "Bread", "Chicken", "Fish", "Pasta", "Pork", "Rice", "Shrimp", "None"]
     const dish_type = ["Cake", "Casserole", "Cookie", "Pie", "Salad", "Soup", "None"]
 
     const handleChange = (setter: React.Dispatch<React.SetStateAction<any>>) => (event: React.ChangeEvent<{ value: unknown }>) => {
         setter(event.target.value);
+    };
+
+    const handleDietaryNeedsChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+        setDietaryNeeds(event.target.value as string[]); // Update state with selected values
       };
 
     const renderSelectOptions = (options: string[]) => {
@@ -94,16 +99,22 @@ export default function recipe() {
 
                 {/* Dietary Needs */}
                 <Grid item xs={12} sm={6}>
-                    <FormControl fullWidth>
+                <FormControl fullWidth>
                     <InputLabel>Dietary Needs</InputLabel>
                     <Select
-                        value={dietaryNeeds}
-                        onChange={handleChange(setDietaryNeeds)}
-                        label="Dietary Needs"
+                    multiple
+                    value={dietaryNeeds}
+                    onChange={handleDietaryNeedsChange}
+                    renderValue={(selected) => selected.join(', ')} // Display selected values as comma-separated
                     >
-                        {renderSelectOptions(dietary_needs)}
+                    {dietary_needs.map((need, index) => (
+                        <MenuItem key={index} value={need}>
+                        <Checkbox checked={dietaryNeeds.indexOf(need) > -1} />
+                        <ListItemText primary={need} />
+                        </MenuItem>
+                    ))}
                     </Select>
-                    </FormControl>
+                </FormControl>
                 </Grid>
 
                 {/* Cuisine Type */}
