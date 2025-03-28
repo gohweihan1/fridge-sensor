@@ -183,6 +183,6 @@ def get_final_recipe_response(recipe_dict, inventory_dict, preferences_dict):
         result["nutritional_note"] = textwrap.fill(note.strip(), width=90)
 
     else:
-        result["recommended_recipe"] = response.strip()
+        result["recommended_recipe"] = response.strip().replace("of the user.", "").strip()
 
     return result
