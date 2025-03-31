@@ -71,7 +71,7 @@ def classify_image(image_data):
     input_data = {
         "image": image_uri,
         "prompt": "You are a fridge sensor designed to detect and identify common fridge items. \
-        Please analyze the image and identify the single most prominent object in the fridge. \
+        Please analyze the image and identify the single most prominent object in the frame. \
         The object should be a typical fridge inventory item such as fruits, vegetables, dairy products, or packaged foods. \
         Please respond in a singular, one-word format (e.g., 'apple', 'carrot', 'cheese'). \
         Your answer should only be the object name and nothing else. Respond in this format: ##<one word answer>##"
@@ -83,13 +83,14 @@ def classify_image(image_data):
         input=input_data
     )
 
-    # Process and return the response
-    # Use regex to extract the answer, whether it's wrapped in '##' or not
-    match = re.search(r"##(.*?)##", "".join(output))
+    joined_output = "".join(output)
+    print(joined_output)
+
+    match = re.search(r"##(.*?)##", joined_output)
     if match:
-        return match.group(1).strip().capitalize()  # Return the content inside '##'
+        return match.group(1).strip().capitalize()
     else:
-        return "".join(output).strip().capitalize()  # Return the raw output if no '##' is f
+        return joined_output.strip().capitalize()
 
 def convert_inventory_list_to_dict(inventory_list: List[Dict[str, Any]]) -> Dict[str, str]:
     inventory_dict = {}
