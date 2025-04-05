@@ -114,7 +114,6 @@ def build_prompt(context: str, fridge_items: Dict, preferences: Dict) -> str:
         "- DO NOT mark any ingredient from the above list as 'Missing' - they are ALL available.\n"
         "- Do not invent or add any ingredients not listed above.\n"
         "- Only ingredients listed above may be used.\n"
-        "- If a required ingredient is not listed (even honey, spices, etc.), you must clearly label it as 'Missing'.\n"
         "- Exception: water is allowed without marking it missing.\n"
 
         "- Match the preferences strictly (meal type, dietary needs, cuisine).\n"
